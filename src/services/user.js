@@ -16,7 +16,7 @@ export const userService = {
     return http.post(API_ROUTES.REGISTER, {
       useraccount: data.username,
       userpassword: data.password,
-      checkpassword: data.confirmPassword
+      checkPassword: data.confirmPassword
     })
   },
 
@@ -28,5 +28,21 @@ export const userService = {
   // 获取用户信息
   getUserInfo() {
     return http.get(API_ROUTES.GETLOGIN)
+  },
+
+  // 上传头像
+  uploadAvatar(file) {
+    const formData = new FormData()
+    formData.append('file', file)
+    return http.post(API_ROUTES.UPLOAD_AVATAR, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+  },
+
+  // 更新用户信息
+  updateUserInfo(data) {
+    return http.post(API_ROUTES.UPDATE_USER, data)
   }
 } 

@@ -6,12 +6,19 @@
       <div class="user-info">
         <el-dropdown>
           <span class="user-dropdown">
-            <el-avatar :size="32" :icon="UserFilled" />
-            <span class="username">{{ username }}</span>
+            <el-avatar :size="32" :src="userInfo.avatar" :icon="UserFilled" />
+            <span class="username">{{ userInfo.nickname || '用户' }}</span>
           </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item @click="handleLogout">退出登录</el-dropdown-item>
+              <el-dropdown-item @click="navigateTo('/settings')">
+                <el-icon><User /></el-icon>
+                账号设置
+              </el-dropdown-item>
+              <el-dropdown-item divided @click="handleLogout">
+                <el-icon><SwitchButton /></el-icon>
+                退出登录
+              </el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -120,12 +127,17 @@ import {
   ChatDotRound, 
   Picture, 
   Document, 
-  DataLine 
+  DataLine,
+  User,
+  SwitchButton
 } from '@element-plus/icons-vue'
 import { userService } from '../services/user'
 
 const router = useRouter()
-const username = ref('用户') // 这里可以从后端获取实际用户名
+const userInfo = ref({
+  nickname: '',
+  avatar: ''
+})
 
 const stats = ref({
   chatCount: 0,
@@ -158,6 +170,18 @@ const handleLogout = async () => {
   }
 }
 
+// 获取用户信息
+const fetchUserInfo = async () => {
+  try {
+    const res = await userService.getUserInfo()
+    if (res && res.data) {
+      userInfo.value = res.data
+    }
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+  }
+}
+
 // 获取用户统计数据
 const fetchUserStats = async () => {
   try {
@@ -170,6 +194,7 @@ const fetchUserStats = async () => {
 }
 
 onMounted(() => {
+  fetchUserInfo()
   fetchUserStats()
 })
 </script>

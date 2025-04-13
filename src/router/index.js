@@ -26,6 +26,12 @@ const routes = [
     name: 'logout',
     component: () => import('../views/Login.vue'),
     meta: { requiresAuth: false }  // 明确标记登出页不需要认证
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: () => import('../views/Settings.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 
@@ -48,16 +54,19 @@ router.beforeEach(async (to, from, next) => {
     if (res && (res.code === 200 || res.code === 0)) {
       next()
     } else {
-      next('/login')
+      // 如果未登录，重定向到登录页，并保存当前要访问的路径
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath }
+      })
     }
   } catch (error) {
-    // 统一处理错误，只进行路由跳转
-    if (error.isAuthError) {
-      next('/login')
-    } else {
-      console.error('获取用户信息失败:', error)
-      next('/login')
-    }
+    console.error('获取用户信息失败:', error)
+    // 如果发生错误，也重定向到登录页
+    next({
+      path: '/login',
+      query: { redirect: to.fullPath }
+    })
   }
 })
 

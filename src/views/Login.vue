@@ -71,23 +71,21 @@ const handleLogin = async () => {
     await loginFormRef.value.validate()
     loading.value = true
     
-    // 打印请求参数，用于调试
-    console.log('登录请求参数:', loginForm)
+    const res = await userService.login({
+      username: loginForm.username,
+      password: loginForm.password
+    })
     
-    const res = await userService.login(loginForm)
-    console.log('登录响应:', res)
-    
-    // 登录成功，直接跳转
     if (res && (res.code === 200 || res.code === 0)) {
       ElMessage.success('登录成功')
-      // 使用 replace 而不是 push，避免回退到登录页
+      // 使用 replace 而不是 push，防止用户通过浏览器后退按钮回到登录页
       router.replace('/')
     } else {
-      ElMessage.error(res.message || '登录失败')
+      ElMessage.error(res.message || '登录失败，请检查账号密码')
     }
   } catch (error) {
     console.error('登录失败:', error)
-    ElMessage.error(error.message || '登录失败，请检查用户名和密码')
+    ElMessage.error(error.message || '登录失败，请重试')
   } finally {
     loading.value = false
   }

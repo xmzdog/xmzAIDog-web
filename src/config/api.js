@@ -6,5 +6,7 @@ export const API_ROUTES = {
   LOGIN: '/user/login',  // 确保这个路径与后端API一致
   REGISTER: '/user/register',
   LOGOUT: '/user/userlogout',
-  GETLOGIN: '/user/getloginuser'
+  GETLOGIN: '/user/getloginuser',
+  UPLOAD_AVATAR: '/user/uploadAvatar',  // 添加头像上传接口
+  UPDATE_USER: '/user/update'  // 添加更新用户信息接口
 } 
