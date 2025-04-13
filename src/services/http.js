@@ -41,9 +41,12 @@ http.interceptors.response.use(
       console.log('处理后的响应数据:', res.data)
       return res  // 返回完整的响应数据
     } else {
-      const errorMsg = res.message || '请求失败'
-      ElMessage.error(errorMsg)
-      return Promise.reject(new Error(errorMsg))
+      // 如果是未登录错误，直接返回错误对象，让调用方处理
+      if (res.code === 401) {
+        return Promise.reject({ isAuthError: true, ...res })
+      }
+      // 其他错误直接返回，让调用方处理
+      return Promise.reject(res)
     }
   },
   error => {
@@ -56,30 +59,28 @@ http.interceptors.response.use(
       // 处理BaseResponse格式的错误
       const errorData = error.response.data
       if (errorData && errorData.message) {
-        ElMessage.error(errorData.message)
+        // 如果是未登录错误，直接返回错误对象，让调用方处理
+        if (error.response.status === 401) {
+          return Promise.reject({ isAuthError: true, ...errorData })
+        }
+        return Promise.reject(errorData)
       } else {
         switch (error.response.status) {
           case 401:
-            ElMessage.error('未授权，请重新登录')
-            router.push('/login')
-            break
+            return Promise.reject({ isAuthError: true, message: '未授权，请重新登录' })
           case 403:
-            ElMessage.error('拒绝访问')
-            break
+            return Promise.reject({ message: '拒绝访问' })
           case 404:
-            ElMessage.error('请求错误，未找到该资源')
-            break
+            return Promise.reject({ message: '请求错误，未找到该资源' })
           case 500:
-            ElMessage.error('服务器错误')
-            break
+            return Promise.reject({ message: '服务器错误' })
           default:
-            ElMessage.error('网络错误')
+            return Promise.reject({ message: '网络错误' })
         }
       }
     } else {
-      ElMessage.error('网络连接失败')
+      return Promise.reject({ message: '网络连接失败' })
     }
-    return Promise.reject(error)
   }
 )
 

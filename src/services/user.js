@@ -15,12 +15,18 @@ export const userService = {
   register(data) {
     return http.post(API_ROUTES.REGISTER, {
       useraccount: data.username,
-      userpassword: data.password
+      userpassword: data.password,
+      checkpassword: data.confirmPassword
     })
   },
 
   // 用户登出
   logout() {
     return http.post(API_ROUTES.LOGOUT)
+  },
+
+  // 获取用户信息
+  getUserInfo() {
+    return http.get(API_ROUTES.GETLOGIN)
   }
 } 

@@ -95,8 +95,14 @@ const handleRegister = async () => {
     await registerFormRef.value.validate()
     loading.value = true
     
-    const { confirmPassword, ...registerData } = registerForm
-    const res = await userService.register(registerData)
+    // 打印注册表单数据，用于调试
+    console.log('注册表单数据:', registerForm)
+    
+    const res = await userService.register({
+      username: registerForm.username,
+      password: registerForm.password,
+      confirmPassword: registerForm.confirmPassword
+    })
     
     ElMessage.success('注册成功')
     router.push('/login')
