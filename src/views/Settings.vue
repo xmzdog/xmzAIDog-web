@@ -111,14 +111,7 @@ const handleAvatarUpload = async (options) => {
   try {
     const res = await userService.uploadAvatar(options.file)
     if (res && res.data) {
-      // userForm.avatar = res.data.avatar
-      // 更新用户信息
-      // await userService.updateUserInfo({
-      //   avatar: res.data.avatar,
-      //   nickname: userForm.nickname,
-      //   email: userForm.email,
-      //   phone: userForm.phone
-      // })
+
       ElMessage.success('头像上传成功')
     } else {
       ElMessage.error('头像上传失败')
