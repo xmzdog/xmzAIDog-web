@@ -21,14 +21,14 @@
             :http-request="handleAvatarUpload"
             :show-file-list="false"
             :before-upload="beforeAvatarUpload">
-            <img v-if="userForm.avatar" :src="userForm.avatar" class="avatar">
+            <img v-if="userForm.userAvatar" :src="getAvatarUrl(userForm.userAvatar)" class="avatar">
             <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
           </el-upload>
         </el-form-item>
 
         <!-- 昵称 -->
-        <el-form-item label="昵称" prop="nickname">
-          <el-input v-model="userForm.nickname" placeholder="请输入昵称" />
+        <el-form-item label="昵称" prop="userName">
+          <el-input v-model="userForm.userName" placeholder="请输入昵称" />
         </el-form-item>
 
         <!-- 邮箱 -->
@@ -65,11 +65,19 @@ const loading = ref(false)
 
 // 用户表单数据
 const userForm = reactive({
-  avatar: '',
-  nickname: '',
+  userAvatar: '',
+  userName: '',
   email: '',
   phone: ''
 })
+
+// 从路由中获取用户信息
+const getUserInfoFromRoute = () => {
+  const route = router.currentRoute.value
+  if (route.meta.userInfo) {
+    Object.assign(userForm, route.meta.userInfo)
+  }
+}
 
 // 表单验证规则
 const rules = {
@@ -87,19 +95,30 @@ const rules = {
   ]
 }
 
+// 获取头像URL
+const getAvatarUrl = (avatar) => {
+  if (!avatar) return ''
+  // 如果已经是完整的URL，直接返回
+  if (avatar.startsWith('http')) {
+    return avatar
+  }
+  // 如果是Base64字符串，添加前缀
+  return `data:image/jpeg;base64,${avatar}`
+}
+
 // 自定义上传方法
 const handleAvatarUpload = async (options) => {
   try {
     const res = await userService.uploadAvatar(options.file)
-    if (res && res.data && res.data.url) {
-      userForm.avatar = res.data.url
+    if (res && res.data) {
+      // userForm.avatar = res.data.avatar
       // 更新用户信息
-      await userService.updateUserInfo({
-        avatar: res.data.url,
-        nickname: userForm.nickname,
-        email: userForm.email,
-        phone: userForm.phone
-      })
+      // await userService.updateUserInfo({
+      //   avatar: res.data.avatar,
+      //   nickname: userForm.nickname,
+      //   email: userForm.email,
+      //   phone: userForm.phone
+      // })
       ElMessage.success('头像上传成功')
     } else {
       ElMessage.error('头像上传失败')
@@ -135,28 +154,19 @@ const handleSubmit = async () => {
     await userFormRef.value.validate()
     loading.value = true
     
-    // TODO: 调用更新用户信息的接口
-    // const res = await userService.updateUserInfo(userForm)
-    
-    ElMessage.success('修改成功')
+    const res = await userService.updateUserInfo(userForm)
+    if (res && (res.code === 200 || res.code === 0)) {
+      ElMessage.success('修改成功')
+      // 更新路由中的用户信息
+      router.currentRoute.value.meta.userInfo = userForm
+    } else {
+      ElMessage.error(res.message || '修改失败')
+    }
   } catch (error) {
     console.error('修改失败:', error)
     ElMessage.error(error.message || '修改失败，请重试')
   } finally {
     loading.value = false
-  }
-}
-
-// 获取用户信息
-const fetchUserInfo = async () => {
-  try {
-    const res = await userService.getUserInfo()
-    if (res && res.data) {
-      Object.assign(userForm, res.data)
-    }
-  } catch (error) {
-    console.error('获取用户信息失败:', error)
-    ElMessage.error('获取用户信息失败')
   }
 }
 
@@ -166,7 +176,7 @@ const goBack = () => {
 }
 
 onMounted(() => {
-  fetchUserInfo()
+  getUserInfoFromRoute()
 })
 </script>
 

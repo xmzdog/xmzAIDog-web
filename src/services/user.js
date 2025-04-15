@@ -43,6 +43,10 @@ export const userService = {
 
   // 更新用户信息
   updateUserInfo(data) {
-    return http.post(API_ROUTES.UPDATE_USER, data)
+    return http.post(API_ROUTES.UPDATE_USER, {
+      username: data.userName,
+      email: data.email,
+      phone: data.phone
+    })
   }
 } 

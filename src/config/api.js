@@ -8,5 +8,5 @@ export const API_ROUTES = {
   LOGOUT: '/user/userlogout',
   GETLOGIN: '/user/getloginuser',
   UPLOAD_AVATAR: '/user/uploadAvatar',  // 添加头像上传接口
-  UPDATE_USER: '/user/update'  // 添加更新用户信息接口
+  UPDATE_USER: '/user/updateUserInfo'  // 添加更新用户信息接口
 } 

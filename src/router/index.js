@@ -52,6 +52,8 @@ router.beforeEach(async (to, from, next) => {
     // 尝试获取用户信息，如果成功则表示已登录
     const res = await userService.getUserInfo()
     if (res && (res.code === 200 || res.code === 0)) {
+      // 将用户信息添加到路由元信息中
+      to.meta.userInfo = res.data
       next()
     } else {
       // 如果未登录，重定向到登录页，并保存当前要访问的路径

@@ -6,8 +6,8 @@
       <div class="user-info">
         <el-dropdown>
           <span class="user-dropdown">
-            <el-avatar :size="32" :src="userInfo.avatar" :icon="UserFilled" />
-            <span class="username">{{ userInfo.nickname || '用户' }}</span>
+            <el-avatar :size="32" :src="getAvatarUrl(userInfo.userAvatar)" :icon="UserFilled" />
+            <span class="username">{{ userInfo.userName || '用户' }}</span>
           </span>
           <template #dropdown>
             <el-dropdown-menu>
@@ -139,6 +139,14 @@ const userInfo = ref({
   avatar: ''
 })
 
+// 从路由中获取用户信息
+const getUserInfoFromRoute = () => {
+  const route = router.currentRoute.value
+  if (route.meta.userInfo) {
+    userInfo.value = route.meta.userInfo
+  }
+}
+
 const stats = ref({
   chatCount: 0,
   imageCount: 0,
@@ -170,18 +178,6 @@ const handleLogout = async () => {
   }
 }
 
-// 获取用户信息
-const fetchUserInfo = async () => {
-  try {
-    const res = await userService.getUserInfo()
-    if (res && res.data) {
-      userInfo.value = res.data
-    }
-  } catch (error) {
-    console.error('获取用户信息失败:', error)
-  }
-}
-
 // 获取用户统计数据
 const fetchUserStats = async () => {
   try {
@@ -193,8 +189,19 @@ const fetchUserStats = async () => {
   }
 }
 
+// 获取头像URL
+const getAvatarUrl = (avatar) => {
+  if (!avatar) return ''
+  // 如果已经是完整的URL，直接返回
+  if (avatar.startsWith('http')) {
+    return avatar
+  }
+  // 如果是Base64字符串，添加前缀
+  return `data:image/jpeg;base64,${avatar}`
+}
+
 onMounted(() => {
-  fetchUserInfo()
+  getUserInfoFromRoute()
   fetchUserStats()
 })
 </script>
